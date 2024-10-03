@@ -305,29 +305,82 @@ void printPartTimeReport() const
     cout << "----------------------------------------------------------------------------\n\n";
 }
     // Print all employees (full-time and part-time) in a combined report
-    void printAllEmployeesReport() const 
-	{
-        cout << "\nAll Employees Report\n\n";
-        cout << left << setw(8) << "ID"
-             << setw(12) << "Name"
-             << setw(15) << "Position"
-             << setw(12) << "Type"
-             << "Net Salary\n";
-        cout << "---------------------------------------------------------\n";
+    // Add this function to implement heap sort on employee names
+void heapify(Employee arr[], int n, int i)
+{
+    int largest = i;  // Initialize largest as root
+    int left = 2 * i + 1;  // Left child
+    int right = 2 * i + 2;  // Right child
 
-        for (int i = 0; i < employeeCount; ++i) 
-		{
-            double grossSalary = 0, taxCost = 0;
-            double netSalary = employees[i].calculateSalary(grossSalary, taxCost);
+    // If left child is larger than root
+    if (left < n && arr[left].getName() > arr[largest].getName())
+        largest = left;
 
-            cout << left << setw(8) << employees[i].getId()
-                 << setw(12) << employees[i].getName()
-                 << setw(15) << employees[i].getPosition()
-                 << setw(12) << employees[i].getType()
-                 << "$" << setw(10) << fixed << setprecision(2) << netSalary << "\n";
-        }
-        cout << "---------------------------------------------------------\n\n";
+    // If right child is larger than largest so far
+    if (right < n && arr[right].getName() > arr[largest].getName())
+        largest = right;
+
+    // If largest is not root
+    if (largest != i) {
+        swap(arr[i], arr[largest]);  // Swap root with largest
+
+        // Recursively heapify the affected sub-tree
+        heapify(arr, n, largest);
     }
+}
+
+// Function to sort employees array by name using heap sort
+void heapSort(Employee arr[], int n)
+{
+    // Build heap (rearrange array)
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+
+    // Extract elements from heap one by one
+    for (int i = n - 1; i > 0; i--)
+	{
+        // Move current root to end
+        swap(arr[0], arr[i]);
+
+        // Call max heapify on the reduced heap
+        heapify(arr, i, 0);
+    }
+}
+
+// Modify the printAllEmployeesReport function to sort by name using heap sort
+// Remove the 'const' keyword from the function declaration
+void printAllEmployeesReport()
+{
+    // Sort employees by name using heap sort
+    Employee sortedEmployees[MAX_EMPLOYEES];
+    for (int i = 0; i < employeeCount; ++i)
+	{
+        sortedEmployees[i] = employees[i];
+    }
+    heapSort(sortedEmployees, employeeCount);  // Sort by name
+
+    // Now print the sorted employee list
+    cout << "\nAll Employees Report (Sorted by Name)\n\n";
+    cout << left << setw(8) << "ID"
+         << setw(12) << "Name"
+         << setw(15) << "Position"
+         << setw(12) << "Type"
+         << "Net Salary\n";
+    cout << "---------------------------------------------------------\n";
+
+    for (int i = 0; i < employeeCount; ++i)
+	{
+        double grossSalary = 0, taxCost = 0;
+        double netSalary = sortedEmployees[i].calculateSalary(grossSalary, taxCost);
+
+        cout << left << setw(8) << sortedEmployees[i].getId()
+             << setw(12) << sortedEmployees[i].getName()
+             << setw(15) << sortedEmployees[i].getPosition()
+             << setw(12) << sortedEmployees[i].getType()
+             << "$" << setw(10) << fixed << setprecision(2) << netSalary << "\n";
+    }
+    cout << "---------------------------------------------------------\n\n";
+}
 
     // Calculate total monthly payment for all employees with breakdown
 void calculateTotalMonthlyPayment() const 
